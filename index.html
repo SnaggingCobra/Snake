@@ -1,5 +1,6 @@
+
 <!DOCTYPE html>
-<html> 
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,13 +9,31 @@
 </head>
 
 <body>
-    <h1>
-        Snake 
-    </h1>
-    <div id="score">Score: 00</div>
-    <canvas id="game" width="400" height="400"></canvas>
-    <p> Use Arrow Keys to Move</p>
-    <button onclick="restartGame()">Restart</button>
+
+    <h1>Snake Game</h1>
+
+    <div class="stats">
+        <span id="score">Score: 0</span>
+        <span id="highscore">High Score: 0</span>
+    </div>
+
+    <div class="game-container">
+
+        <canvas id="game" width="400" height="400"></canvas>
+
+        <div id="menu" class="menu">
+            <h2 id="menu-title">Snake Game</h2>
+            <p id="menu-message">Eat apples and avoid bombs!</p>
+            <button onclick="startGame()" id="menu-button">
+                Start Game
+            </button>
+        </div>
+
+    </div>
+
+    <p class="controls">Use Arrow Keys to Move</p>
+
     <script src="script.js"></script>
+
 </body>
 </html>

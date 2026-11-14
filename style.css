@@ -11,26 +11,74 @@ h1 {
 
 }
 
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 15px;
+    font-size: 18px;
+
+}
+
+.game-container {
+    position: relative;
+    width: 400px;
+    max-width: 95vw;
+    margin: auto;
+
+}
+
+
+
 canvas {
+    display: block;
+    width: 100%;
     background: #1f2937;
-    border: 5px solid #393939;
-    margin-top: 15px;
+    border: 3px solid #374151;
+    box-sizing: border-box;
 
 }
 
-#score {
-    font-size: 20px;
-    margin: 10px;
-
+.controls {
+    color: #9ca3aF;
 }
+
+.menu {
+    position: absolute;
+    inset: 3px;
+    background: rgba(17, 24, 39, 0.92);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.menu h2 {
+    font-size: 32px;
+    color: #22c55e;
+}
+
+.menu p {
+    color: #d1d5db;
+}
+
+
+
 
 button {
-    padding: 10px 25px;
-    background: #312422;
+    padding: 12px 28px;
+    background: #22c55e;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 16px;
-
+    font-size: 17px;
+    margin-top: 15px;
 }
+
+button:hover {
+    background: #16a34a;
+}
+

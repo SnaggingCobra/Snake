@@ -2,38 +2,98 @@ const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
 const box = 20;
+const gridSize = 20;
 
-let snake;
-let apple;
-let bomb;
+let snake = [];
+let apple = null;
+let bomb = null;
 let direction;
-let score;
-let gameover;
+let score = 0;
+let gameState = "menu";
+let bombExpiresAt = 0;
+let currentSpeed = 240;
+let gameTimer = null;
+const MIN_SPEED = 100;
+const SPEED_STEP = 8;
 
-const appleImage = new Image();
-appleImage.src = "APPLE.png";
+const highscoreText = document.getElementById("highscore");
+const scoreText = document.getElementById("score");
+const menu = document.getElementById("menu");
 
-const bombImage = new Image();
-bombImage.src = "BOMB.png";
+function loadImage(paths) {
+    const img = new Image();
+    let index = 0;
 
-const snakeHeadImage = new Image();
-snakeHeadImage.src = "SNAKE-HEAD.png";
+    img.onerror = function () {
+        if (index < paths.length - 1) {
+            index++;
+            img.src = paths[index];
+        }
+    };
 
-const snakeBodyImage = new Image();
-snakeBodyImage.src = "SNAKE-BODY.png";
+    img.src = paths[index];
+    return img;
+}
+
+const snakeHead = loadImage([
+    "images/SNAKE-HEAD.png",
+    "SNAKE-HEAD.png"
+]);
+
+const snakeBody = loadImage([
+    "images/SNAKE-BODY.png",
+    "SNAKE-BODY.png"
+]);
+
+const appleImage = loadImage([
+    "images/APPLE.png",
+    "APPLE.png"
+]);
+
+const bombImage = loadImage([
+    "images/BOMB.png",
+    "BOMB.png"
+]);
+
+let highscore = Number(localStorage.getItem("snakeHighscore")) || 0;
+highscoreText.innerText = "High Score: " + highscore;
 
 function randomPosition() {
-    return {
-        x: Math.floor(Math.random() * 20) * box,
-        y: Math.floor(Math.random() * 20) * box
-    };
+    let position;
+
+    do {
+        position = {
+            x: Math.floor(Math.random() * gridSize) * box,
+            y: Math.floor(Math.random() * gridSize) * box
+        };
+    } while (
+        snake.some(part => part.x === position.x && part.y === position.y) ||
+        (apple && apple.x === position.x && apple.y === position.y)
+    );
+
+    return position;
 }
 
-function endGame() {
-    gameover = true;
+function showMenu(title, message, buttonText) {
+    document.getElementById("menu-title").innerText = title;
+    document.getElementById("menu-message").innerText = message;
+    document.getElementById("menu-button").innerText = buttonText;
+    menu.style.display = "flex";
 }
 
-function restartGame() {
+function updateScore() {
+    scoreText.innerText = "Score: " + score;
+}
+
+function updateSpeed() {
+    if (gameTimer) {
+        clearInterval(gameTimer);
+    }
+
+    gameTimer = setInterval(gameLoop, currentSpeed);
+}
+
+function startGame() {
     snake = [
         { x: 200, y: 200 },
         { x: 180, y: 200 },
@@ -42,16 +102,25 @@ function restartGame() {
 
     direction = "RIGHT";
     score = 0;
-    gameover = false;
-
+    bomb = null;
+    bombExpiresAt = 0;
+    currentSpeed = 240;
     apple = randomPosition();
-    bomb = randomPosition();
 
-    document.getElementById("score").innerText = "Score: 0";
+    gameState = "playing";
+    updateScore();
+    menu.style.display = "none";
+    updateSpeed();
+    draw();
 }
 
-
 document.addEventListener("keydown", function(event) {
+    if (gameState !== "playing") return;
+
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) {
+        event.preventDefault();
+    }
+
     if (event.key === "ArrowUp" && direction !== "DOWN") {
         direction = "UP";
     }
@@ -66,19 +135,63 @@ document.addEventListener("keydown", function(event) {
     }
 });
 
+function endGame() {
+    gameState = "over";
+
+    if (score > highscore) {
+        highscore = score;
+        localStorage.setItem("snakeHighscore", highscore);
+        highscoreText.innerText = "High Score: " + highscore;
+    }
+
+    showMenu(
+        "GAME OVER",
+        "Your Score: " + score + " | Best: " + highscore,
+        "Play Again"
+    );
+
+    draw();
+}
 
 function draw() {
-    if (gameover) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.clearRect(0, 0, 400, 400);
+    if (apple) {
+        if (appleImage.complete && appleImage.naturalWidth) {
+            ctx.drawImage(appleImage, apple.x, apple.y, box, box);
+        } else {
+            ctx.fillStyle = "red";
+            ctx.fillRect(apple.x, apple.y, box, box);
+        }
+    }
 
-    ctx.drawImage(appleImage, apple.x, apple.y, box, box);
-    ctx.drawImage(bombImage, bomb.x, bomb.y, box, box);
+    if (bomb) {
+        if (bombImage.complete && bombImage.naturalWidth) {
+            ctx.drawImage(bombImage, bomb.x, bomb.y, box, box);
+        } else {
+            ctx.fillStyle = "black";
+            ctx.beginPath();
+            ctx.arc(bomb.x + 10, bomb.y + 10, 9, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    if (!snake || snake.length === 0) return;
 
     snake.forEach(function(part, index) {
-        const image = index === 0 ? snakeHeadImage : snakeBodyImage;
-        ctx.drawImage(image, part.x, part.y, box, box);
+        const image = index === 0 ? snakeHead : snakeBody;
+
+        if (image.complete && image.naturalWidth) {
+            ctx.drawImage(image, part.x, part.y, box, box);
+        } else {
+            ctx.fillStyle = index === 0 ? "#22c55e" : "#86efac";
+            ctx.fillRect(part.x, part.y, box - 2, box - 2);
+        }
     });
+}
+
+function gameLoop() {
+    if (gameState !== "playing") return;
 
     let headX = snake[0].x;
     let headY = snake[0].y;
@@ -88,14 +201,17 @@ function draw() {
     if (direction === "LEFT") headX -= box;
     if (direction === "RIGHT") headX += box;
 
-    let newHead = { x: headX, y: headY };
+    const newHead = { x: headX, y: headY };
 
-    if (headX < 0 || headY < 0 || headX >= 400 || headY >= 400) {
+    if (headX < 0 || headY < 0 || headX >= canvas.width || headY >= canvas.height) {
         endGame();
         return;
     }
 
-    for (let part of snake) {
+    const ateApple = headX === apple.x && headY === apple.y;
+    const bodyToCheck = ateApple ? snake : snake.slice(0, -1);
+
+    for (let part of bodyToCheck) {
         if (newHead.x === part.x && newHead.y === part.y) {
             endGame();
             return;
@@ -104,20 +220,35 @@ function draw() {
 
     snake.unshift(newHead);
 
-    if (headX === apple.x && headY === apple.y) {
+    if (ateApple) {
         score++;
-        document.getElementById("score").innerText = "Score: " + score;
+        updateScore();
         apple = randomPosition();
+        currentSpeed = Math.max(MIN_SPEED, currentSpeed - SPEED_STEP);
+        updateSpeed();
     } else {
         snake.pop();
     }
 
-    if (headX === bomb.x && headY === bomb.y) {
+    if (bomb && headX === bomb.x && headY === bomb.y) {
         snake = snake.slice(0, Math.max(1, Math.ceil(snake.length / 2)));
-        bomb = randomPosition();
+        bomb = null;
+        bombExpiresAt = 0;
     }
+
+    if (bomb && Date.now() >= bombExpiresAt) {
+        bomb = null;
+        bombExpiresAt = 0;
+    }
+
+    if (!bomb && Math.random() < 0.002) {
+        bomb = randomPosition();
+        bombExpiresAt = Date.now() + 3000;
+    }
+
+    draw();
 }
 
-
-restartGame();
-setInterval(draw, 120);
+showMenu("SNAKE GAME", "Eat apples and avoid bombs!", "Start Game");
+updateSpeed();
+draw();
