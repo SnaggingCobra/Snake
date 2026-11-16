@@ -176,6 +176,8 @@ function draw() {
         }
     }
 
+
+
     if (!snake || snake.length === 0) return;
 
     snake.forEach(function(part, index) {
@@ -217,7 +219,6 @@ function gameLoop() {
             return;
         }
     }
-
     snake.unshift(newHead);
 
     if (ateApple) {
@@ -229,6 +230,7 @@ function gameLoop() {
     } else {
         snake.pop();
     }
+
 
     if (bomb && headX === bomb.x && headY === bomb.y) {
         snake = snake.slice(0, Math.max(1, Math.ceil(snake.length / 2)));

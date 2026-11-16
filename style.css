@@ -1,84 +1,106 @@
-body {
-    background: #111827;
-    color: white;
-    font-family: Arial, Helvetica, sans-serif;
-    text-align: center;
-
+:root {
+    color-scheme: light;
+    font-family: "Courier New", monospace;
+    color: #1d2921;
+    background: #f1f3e8;
 }
 
-h1 {
-    margin-top: 30px;
+* {
+    box-sizing: border-box;
+}
 
+body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 36px 16px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 
 .stats {
+    width: min(400px, calc(100vw - 44px));
     display: flex;
-    justify-content: center;
-    gap: 30px;
-    margin: 15px;
-    font-size: 18px;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 12px;
+    font-size: 15px;
+    font-weight: 700;
+}
 
+.stats span {
+    padding: 9px 12px;
+    border: 2px solid #1d2921;
+    background: #fffef7;
 }
 
 .game-container {
     position: relative;
-    width: 400px;
-    max-width: 95vw;
-    margin: auto;
-
+    width: min(400px, calc(100vw - 44px));
+    aspect-ratio: 1;
+    border: 4px solid #1d2921;
+    background-color: #edf2df;
+    background-image:
+        linear-gradient(to right, #dce5ce 1px, transparent 1px),
+        linear-gradient(to bottom, #dce5ce 1px, transparent 1px);
+    background-size: 20px 20px;
+    box-shadow: 6px 6px 0 #1d2921;
 }
-
-
 
 canvas {
     display: block;
     width: 100%;
-    background: #1f2937;
-    border: 3px solid #374151;
-    box-sizing: border-box;
-
+    height: 100%;
 }
 
 .controls {
-    color: #9ca3aF;
+    margin: 18px 0 0;
+    color: #526052;
+    font-size: 14px;
 }
 
 .menu {
     position: absolute;
-    inset: 3px;
-    background: rgba(17, 24, 39, 0.92);
+    inset: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 15px;
-    box-sizing: border-box;
+    padding: 20px;
+    background: rgba(241, 243, 232, 0.94);
 }
 
 .menu h2 {
-    font-size: 32px;
-    color: #22c55e;
+    margin: 0 0 8px;
+    color: #287c24;
+    font-size: 36px;
 }
 
 .menu p {
-    color: #d1d5db;
+    margin: 0;
+    color: #39463a;
 }
 
-
-
-
 button {
-    padding: 12px 28px;
-    background: #22c55e;
-    color: white;
-    border: none;
-    border-radius: 6px;
+    margin-top: 18px;
+    padding: 11px 22px;
+    border: 2px solid #1d2921;
+    background: #72e328;
+    color: #1d2921;
+    font: inherit;
+    font-weight: 700;
     cursor: pointer;
-    font-size: 17px;
-    margin-top: 15px;
+    box-shadow: 3px 3px 0 #1d2921;
 }
 
 button:hover {
-    background: #16a34a;
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 #1d2921;
+}
+
+button:focus-visible {
+    outline: 3px solid #d34434;
+    outline-offset: 4px;
 }
 
